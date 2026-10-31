@@ -28,7 +28,7 @@ import org.apache.cxf.spring.boot.CxfJaxrsServerProperties;
 import org.apache.cxf.spring.boot.jaxrs.callback.DefaultEndpointCallback;
 import org.apache.cxf.validation.BeanValidationFeature;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 /**
  * TODO
@@ -74,7 +74,7 @@ public class EndpointApiTemplate {
 	public ServerImpl publish(String addr, EndpointCallback callback, Object... implementors) {
 		
 		// 1). 服务端工厂类
-		JAXRSServerFactoryBean factoryBean = new JAXRSServerFactoryBean();
+		JAXRSServerFactoryBean factoryBean = newServerFactoryBean();
 		
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
@@ -86,7 +86,7 @@ public class EndpointApiTemplate {
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());;
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		
 		// 3). 调用回调函数，个性化设置拦截器、Provider、Feature
@@ -111,7 +111,7 @@ public class EndpointApiTemplate {
 	public ServerImpl publish(String addr, EndpointCallback callback, Class<?>... classes) {
 		
 		// 1). 服务端工厂类
-		JAXRSServerFactoryBean factoryBean = new JAXRSServerFactoryBean();
+		JAXRSServerFactoryBean factoryBean = newServerFactoryBean();
 		
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
@@ -122,7 +122,7 @@ public class EndpointApiTemplate {
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		factoryBean.setResourceClasses(classes);
 		
@@ -135,6 +135,10 @@ public class EndpointApiTemplate {
 		endpointServers.put(addr, server);
 
 		return server;
+	}
+
+	protected JAXRSServerFactoryBean newServerFactoryBean() {
+		return new JAXRSServerFactoryBean();
 	}
 
 	/**
