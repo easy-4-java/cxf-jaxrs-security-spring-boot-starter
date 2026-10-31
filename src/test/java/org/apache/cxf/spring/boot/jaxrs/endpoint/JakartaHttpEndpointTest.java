@@ -1,6 +1,7 @@
 package org.apache.cxf.spring.boot.jaxrs.endpoint;
 
 import java.net.ServerSocket;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -43,32 +44,37 @@ class JakartaHttpEndpointTest {
         };
         try {
             template.publish(address, noExtraFeatures, resource);
-            HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
-            HttpResponse<String> get = client.send(HttpRequest.newBuilder(URI.create(address + "/customers/42"))
-                    .header("Accept", MediaType.APPLICATION_JSON).GET().build(), HttpResponse.BodyHandlers.ofString());
-            assertThat(get.statusCode()).isEqualTo(200);
-            assertThat(get.body()).contains("\"id\":\"42\"", "\"display_name\":\"Ada\"");
-            HttpResponse<String> post = client.send(HttpRequest.newBuilder(URI.create(address + "/customers"))
-                    .header("Content-Type", MediaType.APPLICATION_JSON)
-                    .header("Accept", MediaType.APPLICATION_JSON)
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"id\":\"7\",\"display_name\":\"Grace\"}"))
-                    .build(), HttpResponse.BodyHandlers.ofString());
-            assertThat(post.statusCode()).isEqualTo(200);
-            assertThat(post.body()).contains("\"id\":\"7\"", "\"display_name\":\"Grace\"");
-            assertThat(resource.posts.get()).isEqualTo(1);
-            HttpResponse<String> invalid = client.send(HttpRequest.newBuilder(URI.create(address + "/customers"))
-                    .header("Content-Type", MediaType.APPLICATION_JSON)
-                    .POST(HttpRequest.BodyPublishers.ofString("{invalid json"))
-                    .build(), HttpResponse.BodyHandlers.ofString());
-            assertThat(invalid.statusCode()).isGreaterThanOrEqualTo(400);
-            assertThat(resource.posts.get()).isEqualTo(1);
+            try (HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build()) {
+                HttpResponse<String> get = client.send(HttpRequest.newBuilder(URI.create(address + "/customers/42"))
+                        .header("Accept", MediaType.APPLICATION_JSON).GET().build(), HttpResponse.BodyHandlers.ofString());
+                assertThat(get.statusCode()).isEqualTo(200);
+                assertThat(get.body()).contains("\"id\":\"42\"", "\"display_name\":\"Ada\"");
+                HttpResponse<String> post = client.send(HttpRequest.newBuilder(URI.create(address + "/customers"))
+                        .header("Content-Type", MediaType.APPLICATION_JSON)
+                        .header("Accept", MediaType.APPLICATION_JSON)
+                        .POST(HttpRequest.BodyPublishers.ofString("{\"id\":\"7\",\"display_name\":\"Grace\"}"))
+                        .build(), HttpResponse.BodyHandlers.ofString());
+                assertThat(post.statusCode()).isEqualTo(200);
+                assertThat(post.body()).contains("\"id\":\"7\"", "\"display_name\":\"Grace\"");
+                assertThat(resource.posts.get()).isEqualTo(1);
+                HttpResponse<String> invalid = client.send(HttpRequest.newBuilder(URI.create(address + "/customers"))
+                        .header("Content-Type", MediaType.APPLICATION_JSON)
+                        .POST(HttpRequest.BodyPublishers.ofString("{invalid json"))
+                        .build(), HttpResponse.BodyHandlers.ofString());
+                assertThat(invalid.statusCode()).isGreaterThanOrEqualTo(400);
+                assertThat(resource.posts.get()).isEqualTo(1);
+            }
         } finally {
             template.destroy(address);
             bus.shutdown(true);
         }
-        try (ServerSocket released = new ServerSocket(port)) {
-            assertThat(released.getLocalPort()).isEqualTo(port);
-        }
+        org.awaitility.Awaitility.await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
+            try (ServerSocket released = new ServerSocket()) {
+                released.setReuseAddress(true);
+                released.bind(new InetSocketAddress("127.0.0.1", port));
+                assertThat(released.getLocalPort()).isEqualTo(port);
+            }
+        });
     }
 
     @Path("/customers")
