@@ -39,7 +39,6 @@ public class EndpointApiTemplate {
 	
 	private ConcurrentMap<String, ServerImpl> endpointServers = new ConcurrentHashMap<String, ServerImpl>();
 	private Bus bus;
-	private EndpointCallback callback;
 	private LoggingFeature loggingFeature;
 	private MetricsFeature metricsFeature;
 	private BeanValidationFeature validationFeature;
@@ -49,7 +48,6 @@ public class EndpointApiTemplate {
 	public EndpointApiTemplate(Bus bus, CxfJaxrsServerProperties serverProperties) {
 		this.bus = bus;
 		this.serverProperties = serverProperties;
-		this.callback = new DefaultEndpointCallback( loggingFeature, metricsFeature, validationFeature);
 	}
 
 	/**
@@ -60,7 +58,8 @@ public class EndpointApiTemplate {
 	 * @return
 	 */
 	public ServerImpl publish(String addr, Object... implementors) {
-		return this.publish(addr, callback, implementors);
+		return this.publish(addr,
+				new DefaultEndpointCallback(loggingFeature, metricsFeature, validationFeature), implementors);
 	}
 
 	/**
