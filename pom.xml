@@ -234,10 +234,10 @@
             </exclusions>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider -->
+        <!-- Jakarta REST JSON provider for CXF 4.x -->
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-core -->
@@ -407,6 +407,16 @@
             <artifactId>cxf-rt-features-metrics</artifactId>
             <version>${cxf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>4.2.26</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jmx</artifactId>
+            <version>4.2.26</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-features-throttling -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -428,15 +438,21 @@
             <version>${cxf-rt-javassist.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-transports-http-jetty -->
+        <!-- Embedded HTTP transport for the real loopback endpoint test. -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http-jetty</artifactId>
+            <artifactId>cxf-rt-transports-http-netty-server</artifactId>
             <version>${cxf.version}</version>
             <scope>test</scope>
         </dependency>
 
         <!-- For HttpClient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- For JUnit -->
 

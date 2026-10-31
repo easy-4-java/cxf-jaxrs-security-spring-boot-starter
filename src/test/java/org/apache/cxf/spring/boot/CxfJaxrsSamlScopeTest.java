@@ -3,6 +3,7 @@ package org.apache.cxf.spring.boot;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link CxfJaxrsSamlProperties.Scope}.
@@ -40,6 +41,12 @@ class CxfJaxrsSamlScopeTest {
     @Test
     void valueOfIgnoreCase_shouldWork() {
         assertThat(CxfJaxrsSamlProperties.Scope.valueOfIgnoreCase("request")).isEqualTo(CxfJaxrsSamlProperties.Scope.REQUEST_SCOPE);
+        assertThat(CxfJaxrsSamlProperties.Scope.valueOfIgnoreCase(new String("ReQuEsT")))
+                .isEqualTo(CxfJaxrsSamlProperties.Scope.REQUEST_SCOPE);
+        assertThat(CxfJaxrsSamlProperties.Scope.valueOfIgnoreCase(new String("SESSION")))
+                .isEqualTo(CxfJaxrsSamlProperties.Scope.SESSION_SCOPE);
+        assertThrows(java.util.NoSuchElementException.class,
+                () -> CxfJaxrsSamlProperties.Scope.valueOfIgnoreCase("unknown"));
         assertThat(CxfJaxrsSamlProperties.Scope.valueOfIgnoreCase("session")).isEqualTo(CxfJaxrsSamlProperties.Scope.SESSION_SCOPE);
         assertThat(CxfJaxrsSamlProperties.Scope.valueOfIgnoreCase("request")).isEqualTo(CxfJaxrsSamlProperties.Scope.REQUEST_SCOPE);
     }

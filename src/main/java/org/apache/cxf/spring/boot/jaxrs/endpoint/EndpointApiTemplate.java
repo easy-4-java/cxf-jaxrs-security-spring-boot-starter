@@ -18,17 +18,17 @@ package org.apache.cxf.spring.boot.jaxrs.endpoint;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.metrics.MetricsFeature;
 import org.apache.cxf.spring.boot.CxfJaxrsServerProperties;
 import org.apache.cxf.spring.boot.jaxrs.callback.DefaultEndpointCallback;
 import org.apache.cxf.validation.BeanValidationFeature;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 /**
  * TODO
@@ -39,7 +39,6 @@ public class EndpointApiTemplate {
 	
 	private ConcurrentMap<String, ServerImpl> endpointServers = new ConcurrentHashMap<String, ServerImpl>();
 	private Bus bus;
-	private EndpointCallback callback;
 	private LoggingFeature loggingFeature;
 	private MetricsFeature metricsFeature;
 	private BeanValidationFeature validationFeature;
@@ -49,7 +48,6 @@ public class EndpointApiTemplate {
 	public EndpointApiTemplate(Bus bus, CxfJaxrsServerProperties serverProperties) {
 		this.bus = bus;
 		this.serverProperties = serverProperties;
-		this.callback = new DefaultEndpointCallback( loggingFeature, metricsFeature, validationFeature);
 	}
 
 	/**
@@ -60,7 +58,8 @@ public class EndpointApiTemplate {
 	 * @return
 	 */
 	public ServerImpl publish(String addr, Object... implementors) {
-		return this.publish(addr, callback, implementors);
+		return this.publish(addr,
+				new DefaultEndpointCallback(loggingFeature, metricsFeature, validationFeature), implementors);
 	}
 
 	/**
@@ -74,19 +73,19 @@ public class EndpointApiTemplate {
 	public ServerImpl publish(String addr, EndpointCallback callback, Object... implementors) {
 		
 		// 1). 服务端工厂类
-		JAXRSServerFactoryBean factoryBean = new JAXRSServerFactoryBean();
+		JAXRSServerFactoryBean factoryBean = newServerFactoryBean();
 		
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
 		factoryBean.setBus(bus);
 		factoryBean.setServiceBeanObjects(implementors);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());;
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		
 		// 3). 调用回调函数，个性化设置拦截器、Provider、Feature
@@ -111,18 +110,18 @@ public class EndpointApiTemplate {
 	public ServerImpl publish(String addr, EndpointCallback callback, Class<?>... classes) {
 		
 		// 1). 服务端工厂类
-		JAXRSServerFactoryBean factoryBean = new JAXRSServerFactoryBean();
+		JAXRSServerFactoryBean factoryBean = newServerFactoryBean();
 		
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
 		factoryBean.setBus(bus);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		factoryBean.setResourceClasses(classes);
 		
@@ -135,6 +134,10 @@ public class EndpointApiTemplate {
 		endpointServers.put(addr, server);
 
 		return server;
+	}
+
+	protected JAXRSServerFactoryBean newServerFactoryBean() {
+		return new JAXRSServerFactoryBean();
 	}
 
 	/**
