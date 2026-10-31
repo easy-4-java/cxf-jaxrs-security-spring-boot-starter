@@ -18,11 +18,11 @@ package org.apache.cxf.spring.boot.jaxrs.endpoint;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.metrics.MetricsFeature;
 import org.apache.cxf.spring.boot.CxfJaxrsServerProperties;
 import org.apache.cxf.spring.boot.jaxrs.callback.DefaultEndpointCallback;
@@ -79,7 +79,7 @@ public class EndpointApiTemplate {
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
 		factoryBean.setBus(bus);
 		factoryBean.setServiceBeanObjects(implementors);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
@@ -116,7 +116,7 @@ public class EndpointApiTemplate {
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
 		factoryBean.setBus(bus);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());

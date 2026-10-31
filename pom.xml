@@ -438,10 +438,10 @@
             <version>${cxf-rt-javassist.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-transports-http-jetty -->
+        <!-- Embedded HTTP transport for the real loopback endpoint test. -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http-jetty</artifactId>
+            <artifactId>cxf-rt-transports-http-netty-server</artifactId>
             <version>${cxf.version}</version>
             <scope>test</scope>
         </dependency>
