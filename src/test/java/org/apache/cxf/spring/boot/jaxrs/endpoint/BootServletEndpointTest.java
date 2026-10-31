@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = BootServletEndpointTest.TestApplication.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"cxf.jaxrs.enabled=true", "cxf.path=/services"})
+        properties = {"cxf.jaxrs.enabled=true", "cxf.path=/services", "server.address=127.0.0.1"})
 class BootServletEndpointTest {
 
     @SpringBootConfiguration
