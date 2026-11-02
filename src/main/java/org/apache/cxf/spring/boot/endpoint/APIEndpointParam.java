@@ -1,6 +1,6 @@
 package org.apache.cxf.spring.boot.endpoint;
 
-import javax.jws.WebParam.Mode;
+import jakarta.jws.WebParam.Mode;
 
 public class APIEndpointParam {
 
@@ -37,7 +37,7 @@ public class APIEndpointParam {
 	 *	WebParam.Mode.OUT 和 WebParam.Mode.INOUT 模式仅对于 RPC 样式的 Web Service 或映射到头的参数受支持。 
 	 * 
 	 */
-	private Mode mode = javax.jws.WebParam.Mode.IN;
+	private Mode mode = jakarta.jws.WebParam.Mode.IN;
 	
 	/**
 	 * 指定该参数的值是否存在于 SOAP 头中。默认情况下，参数位于 SOAP 正文中。有效值为 true 和 false。默认值为 false。 

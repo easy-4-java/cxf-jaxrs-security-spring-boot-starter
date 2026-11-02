@@ -107,7 +107,7 @@ public class CxfJaxrsSamlConfiguration implements ApplicationContextAware {
 
 	@Bean
 	@ConditionalOnMissingBean(SPStateManager.class)
-	public SPStateManager stateManager(Bus bus) {
+	public SPStateManager stateManager(Bus bus) throws ReflectiveOperationException {
 
 		boolean ehcacheIsAvailable = false;
 		try {

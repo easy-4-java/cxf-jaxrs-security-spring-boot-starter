@@ -2,7 +2,7 @@ package org.apache.cxf.spring.boot.endpoint;
 
 public class APIEndpointResult {
 
-	// javax.jws.WebResult
+	// jakarta.jws.WebResult
 
 	/**
 	 * WSDL 文件中参数的名称。

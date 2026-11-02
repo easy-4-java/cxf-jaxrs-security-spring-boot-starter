@@ -18,7 +18,7 @@ package org.apache.cxf.spring.boot.jaxrs;
 
 import java.util.Date;  
  
-import javax.xml.bind.annotation.XmlRootElement;  
+import jakarta.xml.bind.annotation.XmlRootElement;  
  
 @XmlRootElement(name="Customer")     
 public class Customer {    

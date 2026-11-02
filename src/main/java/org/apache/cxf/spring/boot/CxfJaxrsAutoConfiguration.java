@@ -9,7 +9,6 @@ import org.apache.cxf.metrics.MetricsFeature;
 import org.apache.cxf.metrics.MetricsProvider;
 import org.apache.cxf.metrics.codahale.CodahaleMetricsProvider;
 import org.apache.cxf.rs.security.oauth2.grants.code.EHCacheCodeDataProvider;
-import org.apache.cxf.rs.security.oauth2.provider.DefaultEHCacheOAuthDataProvider;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthDataProvider;
 import org.apache.cxf.rs.security.oauth2.services.AccessTokenService;
 import org.apache.cxf.spring.boot.endpoint.APIEndpointRepository;
@@ -124,7 +123,7 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public DefaultEHCacheOAuthDataProvider oauthProvider() {
+	public EHCacheCodeDataProvider oauthProvider() {
 
 		/*
 		 * <bean id="oauthProvider" class=
@@ -138,7 +137,7 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 		 *        <property name="useJwtFormatForAccessTokens" value="true"/> </bean>
 		 */
 
-		DefaultEHCacheOAuthDataProvider dataProvider = new EHCacheCodeDataProvider();
+		EHCacheCodeDataProvider dataProvider = new EHCacheCodeDataProvider();
 
 		dataProvider.setUseJwtFormatForAccessTokens(true);
 
