@@ -61,6 +61,13 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>shibboleth-releases</id>
+            <url>https://build.shibboleth.net/maven/releases/</url>
+        </repository>
+    </repositories>
+
     <build>
 
         <pluginManagement>
@@ -75,6 +82,7 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <proc>full</proc>
                         <maxmem>512M</maxmem>
                     </configuration>
                 </plugin>
@@ -480,7 +488,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <commons-io.version>2.5</commons-io.version>
-        <cxf.version>3.3.1</cxf.version>
+        <cxf.version>4.1.9</cxf.version>
         <cxf-rt-javassist.version>2.0.x.20260630-SNAPSHOT</cxf-rt-javassist.version>
         <maven.version>3.0</maven.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
@@ -687,12 +695,6 @@
             <artifactId>cxf-rt-rs-service-description-swagger-ui</artifactId>
             <version>${cxf.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-service-description-swagger -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-extension-providers -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -754,14 +756,13 @@
             <version>${cxf.version}</version>
             <optional>true</optional>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-security-oauth -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-security-oauth</artifactId>
-            <version>${cxf.version}</version>
-            <optional>true</optional>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-security-oauth2 -->
+        <!-- CXF's OAuth2 JCache provider needs a JCache implementation. -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>jcache</artifactId>
+            <version>3.2.4</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-security-oauth2</artifactId>
@@ -814,7 +815,6 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-features-logging</artifactId>
             <version>${cxf.version}</version>
-            <scope>test</scope>
         </dependency>
         <!-- Source: https://github.com/easy-4-java/cxf-rt-javassist — easy4j cxf-rt-javassist -->
         <dependency>
