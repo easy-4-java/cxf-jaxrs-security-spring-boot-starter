@@ -19,7 +19,7 @@ import org.apache.cxf.validation.BeanValidationFeature;
 import org.apache.cxf.validation.BeanValidationProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,11 +28,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 //http://cxf.apache.org/docs/springboot.html
-@AutoConfigureAfter(name = { "org.apache.cxf.spring.boot.autoconfigure.CxfAutoConfiguration" })
-@Configuration
+@AutoConfiguration(afterName = "org.apache.cxf.spring.boot.autoconfigure.CxfAutoConfiguration")
 @ConditionalOnWebApplication
 @ConditionalOnClass({ SpringBus.class, CXFServlet.class })
 @ConditionalOnProperty(prefix = CxfJaxrsProperties.PREFIX, value = "enabled", havingValue = "true")
@@ -42,12 +40,8 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 
 	@Autowired
-	private Bus bus;
-	@Autowired
 	private APIEndpointRepository endpointRepository;
 
-	@Bean
-	@ConditionalOnMissingBean(Bus.class)
 	public Bus bus() {
 		SpringBus bus = new SpringBus();
 		BusFactory.setDefaultBus(bus);
