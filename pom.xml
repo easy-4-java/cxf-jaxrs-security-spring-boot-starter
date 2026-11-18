@@ -621,10 +621,11 @@
         <!-- Json格式自动转换Provider，Jackson好用一些 -->
         <!-- 也可以引入CXF自带的cxf-rt-rs-extension-providers（以及它默认使用jettison） -->
         <!-- 也可以不使用Provider，直接使用CXF默认的Response.ResponseBuilder生成Response并返回，格式需要自己转换，例如使用Gson -->
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider -->
+        <!-- Jakarta REST provider for CXF 4 and Spring Boot 3 -->
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+            <version>${jackson-bom.version}</version>
         </dependency>
         <!-- JAXB能够使用Jackson对JAXB注解的支持实现(jackson-module-jaxb-annotations)，既方便生成XML，也方便生成JSON， 
             这样一来可以更好的标志可以转换为JSON对象的JAVA类。JAXB允许JAVA人员将JAVA类映射为XML表示方式，常用的注解包括：@XmlRootElement,@XmlElement等等。 -->

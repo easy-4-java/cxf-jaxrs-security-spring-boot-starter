@@ -28,7 +28,7 @@ import org.apache.cxf.spring.boot.CxfJaxrsServerProperties;
 import org.apache.cxf.spring.boot.jaxrs.callback.DefaultEndpointCallback;
 import org.apache.cxf.validation.BeanValidationFeature;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 /**
  * TODO
@@ -48,7 +48,7 @@ public class EndpointApiTemplate {
 	public EndpointApiTemplate(Bus bus, CxfJaxrsServerProperties serverProperties) {
 		this.bus = bus;
 		this.serverProperties = serverProperties;
-		this.callback = new DefaultEndpointCallback( loggingFeature, metricsFeature, validationFeature);
+		refreshDefaultCallback();
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class EndpointApiTemplate {
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());;
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		
 		// 3). 调用回调函数，个性化设置拦截器、Provider、Feature
@@ -121,7 +121,7 @@ public class EndpointApiTemplate {
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		factoryBean.setResourceClasses(classes);
 		
@@ -162,6 +162,7 @@ public class EndpointApiTemplate {
 
 	public void setLoggingFeature(LoggingFeature loggingFeature) {
 		this.loggingFeature = loggingFeature;
+		refreshDefaultCallback();
 	}
 
 	public MetricsFeature getMetricsFeature() {
@@ -170,6 +171,7 @@ public class EndpointApiTemplate {
 
 	public void setMetricsFeature(MetricsFeature metricsFeature) {
 		this.metricsFeature = metricsFeature;
+		refreshDefaultCallback();
 	}
 
 	public BeanValidationFeature getValidationFeature() {
@@ -178,6 +180,11 @@ public class EndpointApiTemplate {
 
 	public void setValidationFeature(BeanValidationFeature validationFeature) {
 		this.validationFeature = validationFeature;
+		refreshDefaultCallback();
+	}
+
+	private void refreshDefaultCallback() {
+		this.callback = new DefaultEndpointCallback(loggingFeature, metricsFeature, validationFeature);
 	}
 	
 }

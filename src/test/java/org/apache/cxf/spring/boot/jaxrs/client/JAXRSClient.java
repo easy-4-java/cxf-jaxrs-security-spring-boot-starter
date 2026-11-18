@@ -27,7 +27,7 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.spring.boot.jaxrs.Customer;
 import org.apache.cxf.spring.boot.jaxrs.CustomerService;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 public class JAXRSClient {
 

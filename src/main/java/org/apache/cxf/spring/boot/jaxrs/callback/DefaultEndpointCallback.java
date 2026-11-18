@@ -27,7 +27,7 @@ import org.apache.cxf.metrics.MetricsFeature;
 import org.apache.cxf.spring.boot.jaxrs.endpoint.EndpointCallback;
 import org.apache.cxf.validation.BeanValidationFeature;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 /**
  * TODO
