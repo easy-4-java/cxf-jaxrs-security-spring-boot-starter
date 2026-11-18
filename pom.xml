@@ -61,6 +61,13 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>shibboleth-releases</id>
+            <url>https://build.shibboleth.net/maven/releases/</url>
+        </repository>
+    </repositories>
+
     <build>
 
         <pluginManagement>
@@ -75,6 +82,7 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <proc>full</proc>
                         <maxmem>512M</maxmem>
                     </configuration>
                 </plugin>
@@ -480,7 +488,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <commons-io.version>2.5</commons-io.version>
-        <cxf.version>3.3.1</cxf.version>
+        <cxf.version>4.1.9</cxf.version>
+        <dropwizard-metrics.version>4.2.40</dropwizard-metrics.version>
         <cxf-rt-javassist.version>2.0.x.20260630-SNAPSHOT</cxf-rt-javassist.version>
         <maven.version>3.0</maven.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
@@ -489,7 +498,7 @@
         <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-        <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <jaxb-impl.version>2.3.2</jaxb-impl.version>
@@ -613,10 +622,11 @@
         <!-- Json格式自动转换Provider，Jackson好用一些 -->
         <!-- 也可以引入CXF自带的cxf-rt-rs-extension-providers（以及它默认使用jettison） -->
         <!-- 也可以不使用Provider，直接使用CXF默认的Response.ResponseBuilder生成Response并返回，格式需要自己转换，例如使用Gson -->
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider -->
+        <!-- Jakarta REST provider for CXF 4 and Spring Boot 3 -->
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+            <version>${jackson-bom.version}</version>
         </dependency>
         <!-- JAXB能够使用Jackson对JAXB注解的支持实现(jackson-module-jaxb-annotations)，既方便生成XML，也方便生成JSON， 
             这样一来可以更好的标志可以转换为JSON对象的JAVA类。JAXB允许JAVA人员将JAVA类映射为XML表示方式，常用的注解包括：@XmlRootElement,@XmlElement等等。 -->
@@ -687,12 +697,6 @@
             <artifactId>cxf-rt-rs-service-description-swagger-ui</artifactId>
             <version>${cxf.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-service-description-swagger -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-extension-providers -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -754,14 +758,13 @@
             <version>${cxf.version}</version>
             <optional>true</optional>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-security-oauth -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-security-oauth</artifactId>
-            <version>${cxf.version}</version>
-            <optional>true</optional>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-rs-security-oauth2 -->
+        <!-- CXF's OAuth2 JCache provider needs a JCache implementation. -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>jcache</artifactId>
+            <version>3.2.4</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-security-oauth2</artifactId>
@@ -796,6 +799,17 @@
             <artifactId>cxf-rt-features-clustering</artifactId>
             <version>${cxf.version}</version>
         </dependency>
+        <!-- CodahaleMetricsProvider uses CXF's optional Dropwizard 4 APIs. -->
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>${dropwizard-metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jmx</artifactId>
+            <version>${dropwizard-metrics.version}</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-features-metrics -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -814,7 +828,6 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-features-logging</artifactId>
             <version>${cxf.version}</version>
-            <scope>test</scope>
         </dependency>
         <!-- Source: https://github.com/easy-4-java/cxf-rt-javassist — easy4j cxf-rt-javassist -->
         <dependency>
@@ -834,21 +847,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${httpclient.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-
-            <!-- For JUnit -->
-            <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- For Commons IO -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
             <scope>test</scope>
         </dependency>
             <!-- For JUnit -->

@@ -18,11 +18,11 @@ package org.apache.cxf.spring.boot.jaxrs.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 /**
  * 参考：https://www.cnblogs.com/huangcongcong/p/4761732.html
  */
