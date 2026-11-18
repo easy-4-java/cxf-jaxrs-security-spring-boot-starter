@@ -39,7 +39,7 @@ public class CxfJaxrsSamlProperties {
 
 		public static Scope valueOfIgnoreCase(String key) {
 			for (Scope scope : Scope.values()) {
-				if (scope.get() == key) {
+				if (scope.get().equalsIgnoreCase(key)) {
 					return scope;
 				}
 			}
