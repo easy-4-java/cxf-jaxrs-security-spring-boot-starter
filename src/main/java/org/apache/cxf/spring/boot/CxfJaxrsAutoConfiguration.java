@@ -3,7 +3,11 @@ package org.apache.cxf.spring.boot;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBus;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.jaxrs.JAXRSInvoker;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationFeature;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInvoker;
 import org.apache.cxf.jaxrs.validation.ValidationExceptionMapper;
 import org.apache.cxf.metrics.MetricsFeature;
 import org.apache.cxf.metrics.MetricsProvider;
@@ -11,6 +15,7 @@ import org.apache.cxf.metrics.codahale.CodahaleMetricsProvider;
 import org.apache.cxf.rs.security.oauth2.grants.code.EHCacheCodeDataProvider;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthDataProvider;
 import org.apache.cxf.rs.security.oauth2.services.AccessTokenService;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.spring.boot.endpoint.APIEndpointRepository;
 import org.apache.cxf.spring.boot.jaxrs.endpoint.EndpointApiTemplate;
 import org.apache.cxf.spring.boot.property.LoggingFeatureProperty;
@@ -56,7 +61,7 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 
 	@Bean
 	public BeanValidationFeature validationFeature(BeanValidationProvider validationProvider) {
-		BeanValidationFeature feature = new BeanValidationFeature();
+		BeanValidationFeature feature = new RestBeanValidationFeature();
 		feature.setProvider(validationProvider);
 		return feature;
 	}
@@ -173,6 +178,32 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 
 	public void setEndpointRepository(APIEndpointRepository endpointRepository) {
 		this.endpointRepository = endpointRepository;
+	}
+
+	/** Preserves the starter's feature type while using CXF's REST interceptors on servers. */
+	private static final class RestBeanValidationFeature extends BeanValidationFeature {
+		private final JAXRSBeanValidationFeature restFeature = new JAXRSBeanValidationFeature();
+		private BeanValidationProvider provider;
+
+		@Override
+		public void setProvider(BeanValidationProvider provider) {
+			super.setProvider(provider);
+			this.provider = provider;
+			restFeature.setProvider(provider);
+		}
+
+		@Override
+		public void initialize(Server server, Bus bus) {
+			Service service = server.getEndpoint().getService();
+			if (JAXRSInvoker.class.equals(service.getInvoker().getClass())) {
+				// The invoker sees the actual instance created for each class-based request.
+				JAXRSBeanValidationInvoker invoker = new JAXRSBeanValidationInvoker();
+				invoker.setProvider(provider);
+				service.setInvoker(invoker);
+			} else {
+				restFeature.initialize(server, bus);
+			}
+		}
 	}
 
 }

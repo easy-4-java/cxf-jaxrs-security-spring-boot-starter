@@ -7,12 +7,14 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.cxf.spring.boot.endpoint.APIEndpointRepository;
+import org.apache.cxf.spring.boot.jaxrs.callback.DefaultEndpointCallback;
 import org.apache.cxf.spring.boot.jaxrs.endpoint.JakartaJsonProviderTest.Customer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,12 +77,34 @@ class BootServletEndpointTest {
         }
     }
 
+    @Test
+    void publishesEndpointsDeclaredByResourceClass() throws Exception {
+        String address = "/typed";
+        String url = "http://127.0.0.1:" + port + "/services" + address + "/customers/7";
+        EndpointCallback callback = new DefaultEndpointCallback(
+                template.getLoggingFeature(), template.getMetricsFeature(), template.getValidationFeature());
+        template.publish(address, callback, CustomerResource.class);
+        try (HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build()) {
+            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                    .header("Accept", MediaType.APPLICATION_JSON).GET().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.body()).contains("\"id\":\"7\"", "\"display_name\":\"Ada\"");
+            HttpRequest invalid = HttpRequest.newBuilder(
+                    URI.create("http://127.0.0.1:" + port + "/services" + address + "/customers/invalid"))
+                    .header("Accept", MediaType.APPLICATION_JSON).GET().build();
+            assertThat(client.send(invalid, HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(400);
+        } finally {
+            template.destroy(address);
+        }
+    }
+
     @Path("/customers")
     public static class CustomerResource {
         @GET
         @Path("/{id}")
         @Produces(MediaType.APPLICATION_JSON)
-        public Customer get(@PathParam("id") String id) {
+        public Customer get(@PathParam("id") @Pattern(regexp = "[0-9]+") String id) {
             return new Customer(id, "Ada");
         }
     }
