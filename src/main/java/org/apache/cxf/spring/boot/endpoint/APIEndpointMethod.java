@@ -2,7 +2,7 @@ package org.apache.cxf.spring.boot.endpoint;
 
 public class APIEndpointMethod {
 
-	// javax.jws.WebMethod
+	// jakarta.jws.WebMethod
 	
 	/**
 	 * 操作的名称。映射到 WSDL 文件中的 <wsdl:operation> 元素。默认值为该方法的名称。 
@@ -14,10 +14,10 @@ public class APIEndpointMethod {
 	private String action;
 	private boolean exclude;
 
-	// javax.jws.WebParam
+	// jakarta.jws.WebParam
 	private APIEndpointParam[] params;
 	
-	// javax.jws.WebResult
+	// jakarta.jws.WebResult
 	
 	private APIEndpointResult result;
 

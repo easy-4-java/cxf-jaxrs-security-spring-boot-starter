@@ -41,7 +41,7 @@ public class DynamicWebserviceGenerator
          
         // 添加类注解
         AnnotationsAttribute bodyAttr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-        Annotation bodyAnnot = new Annotation("javax.jws.WebService", constPool);
+        Annotation bodyAnnot = new Annotation("jakarta.jws.WebService", constPool);
         bodyAnnot.addMemberValue("name", new StringMemberValue("HelloWoldService", constPool));
         bodyAttr.addAnnotation(bodyAnnot);
          
@@ -49,11 +49,11 @@ public class DynamicWebserviceGenerator
  
         // 添加方法注解
         AnnotationsAttribute methodAttr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-        Annotation methodAnnot = new Annotation("javax.jws.WebMethod", constPool);
+        Annotation methodAnnot = new Annotation("jakarta.jws.WebMethod", constPool);
         methodAnnot.addMemberValue("operationName", new StringMemberValue("sayHelloWorld", constPool));
         methodAttr.addAnnotation(methodAnnot);
          
-        Annotation resultAnnot = new Annotation("javax.jws.WebResult", constPool);
+        Annotation resultAnnot = new Annotation("jakarta.jws.WebResult", constPool);
         resultAnnot.addMemberValue("name", new StringMemberValue("result", constPool));
         methodAttr.addAnnotation(resultAnnot);
          
@@ -62,7 +62,7 @@ public class DynamicWebserviceGenerator
         // 添加参数注解
         ParameterAnnotationsAttribute parameterAtrribute = new ParameterAnnotationsAttribute(
                 constPool, ParameterAnnotationsAttribute.visibleTag);
-        Annotation paramAnnot = new Annotation("javax.jws.WebParam", constPool);
+        Annotation paramAnnot = new Annotation("jakarta.jws.WebParam", constPool);
         paramAnnot.addMemberValue("name", new StringMemberValue("name",constPool));
         Annotation[][] paramArrays = new Annotation[1][1];
         paramArrays[0][0] = paramAnnot;

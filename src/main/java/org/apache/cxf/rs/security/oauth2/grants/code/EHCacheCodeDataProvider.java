@@ -2,7 +2,8 @@ package org.apache.cxf.rs.security.oauth2.grants.code;
 
 import org.apache.cxf.Bus;
 
-public class EHCacheCodeDataProvider extends DefaultEncryptingCodeDataProvider {
+/** Compatibility name for the JCache-backed provider used by CXF 4. */
+public class EHCacheCodeDataProvider extends JCacheCodeDataProvider {
 
 	public EHCacheCodeDataProvider() {
 		super();
