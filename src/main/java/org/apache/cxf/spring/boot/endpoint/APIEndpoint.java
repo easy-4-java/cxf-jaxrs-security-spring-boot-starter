@@ -8,7 +8,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class APIEndpoint implements Serializable {
 
-	// javax.jws.WebService
+	// jakarta.jws.WebService
 
 	/**
 	 * Web Service 的名称。映射到 WSDL 文件中的 <wsdl:portType> 元素。默认值为 JWS 文件中 Java 类的非限定名称。 
@@ -43,7 +43,7 @@ public class APIEndpoint implements Serializable {
 	 */
 	private String addr;
 
-	// javax.jws.WebMethod
+	// jakarta.jws.WebMethod
 
 	private APIEndpointMethod[] methods;
 	
