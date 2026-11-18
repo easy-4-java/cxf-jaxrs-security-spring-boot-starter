@@ -3,7 +3,11 @@ package org.apache.cxf.spring.boot;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBus;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.jaxrs.JAXRSInvoker;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationFeature;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInvoker;
 import org.apache.cxf.jaxrs.validation.ValidationExceptionMapper;
 import org.apache.cxf.metrics.MetricsFeature;
 import org.apache.cxf.metrics.MetricsProvider;
@@ -11,6 +15,7 @@ import org.apache.cxf.metrics.codahale.CodahaleMetricsProvider;
 import org.apache.cxf.rs.security.oauth2.grants.code.EHCacheCodeDataProvider;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthDataProvider;
 import org.apache.cxf.rs.security.oauth2.services.AccessTokenService;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.spring.boot.endpoint.APIEndpointRepository;
 import org.apache.cxf.spring.boot.jaxrs.endpoint.EndpointApiTemplate;
 import org.apache.cxf.spring.boot.property.LoggingFeatureProperty;
@@ -19,7 +24,7 @@ import org.apache.cxf.validation.BeanValidationFeature;
 import org.apache.cxf.validation.BeanValidationProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,11 +33,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 //http://cxf.apache.org/docs/springboot.html
-@AutoConfigureAfter(name = { "org.apache.cxf.spring.boot.autoconfigure.CxfAutoConfiguration" })
-@Configuration
+@AutoConfiguration(afterName = "org.apache.cxf.spring.boot.autoconfigure.CxfAutoConfiguration")
 @ConditionalOnWebApplication
 @ConditionalOnClass({ SpringBus.class, CXFServlet.class })
 @ConditionalOnProperty(prefix = CxfJaxrsProperties.PREFIX, value = "enabled", havingValue = "true")
@@ -42,12 +45,8 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 	private ApplicationContext applicationContext;
 
 	@Autowired
-	private Bus bus;
-	@Autowired
 	private APIEndpointRepository endpointRepository;
 
-	@Bean
-	@ConditionalOnMissingBean(Bus.class)
 	public Bus bus() {
 		SpringBus bus = new SpringBus();
 		BusFactory.setDefaultBus(bus);
@@ -62,7 +61,7 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 
 	@Bean
 	public BeanValidationFeature validationFeature(BeanValidationProvider validationProvider) {
-		BeanValidationFeature feature = new BeanValidationFeature();
+		BeanValidationFeature feature = new RestBeanValidationFeature();
 		feature.setProvider(validationProvider);
 		return feature;
 	}
@@ -179,6 +178,32 @@ public class CxfJaxrsAutoConfiguration implements ApplicationContextAware {
 
 	public void setEndpointRepository(APIEndpointRepository endpointRepository) {
 		this.endpointRepository = endpointRepository;
+	}
+
+	/** Preserves the starter's feature type while using CXF's REST interceptors on servers. */
+	private static final class RestBeanValidationFeature extends BeanValidationFeature {
+		private final JAXRSBeanValidationFeature restFeature = new JAXRSBeanValidationFeature();
+		private BeanValidationProvider provider;
+
+		@Override
+		public void setProvider(BeanValidationProvider provider) {
+			super.setProvider(provider);
+			this.provider = provider;
+			restFeature.setProvider(provider);
+		}
+
+		@Override
+		public void initialize(Server server, Bus bus) {
+			Service service = server.getEndpoint().getService();
+			if (JAXRSInvoker.class.equals(service.getInvoker().getClass())) {
+				// The invoker sees the actual instance created for each class-based request.
+				JAXRSBeanValidationInvoker invoker = new JAXRSBeanValidationInvoker();
+				invoker.setProvider(provider);
+				service.setInvoker(invoker);
+			} else {
+				restFeature.initialize(server, bus);
+			}
+		}
 	}
 
 }
