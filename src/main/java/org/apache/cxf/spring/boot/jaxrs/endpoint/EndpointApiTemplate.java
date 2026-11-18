@@ -15,15 +15,17 @@
  */
 package org.apache.cxf.spring.boot.jaxrs.endpoint;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.metrics.MetricsFeature;
+import org.apache.cxf.jaxrs.provider.ProviderFactory;
 import org.apache.cxf.spring.boot.CxfJaxrsServerProperties;
 import org.apache.cxf.spring.boot.jaxrs.callback.DefaultEndpointCallback;
 import org.apache.cxf.validation.BeanValidationFeature;
@@ -78,8 +80,8 @@ public class EndpointApiTemplate {
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
-		factoryBean.setBus(bus);
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
+		configureBus(factoryBean);
 		factoryBean.setServiceBeanObjects(implementors);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());;
@@ -115,8 +117,8 @@ public class EndpointApiTemplate {
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
-		factoryBean.setBus(bus);
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
+		configureBus(factoryBean);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());
 		factoryBean.setProperties(serverProperties.getProperties());
@@ -135,6 +137,15 @@ public class EndpointApiTemplate {
 
 		return server;
 	}
+
+    private void configureBus(JAXRSServerFactoryBean factoryBean) {
+        String property = ProviderFactory.SKIP_JAKARTA_JSON_PROVIDERS_REGISTRATION;
+        if (Objects.isNull(bus.getProperty(property))) {
+            // The starter explicitly supplies Jackson for JSON endpoints.
+            bus.setProperty(property, Boolean.TRUE);
+        }
+        factoryBean.setBus(bus);
+    }
 
 	/**
 	 * 销毁指定路径匹配的Endpoint
