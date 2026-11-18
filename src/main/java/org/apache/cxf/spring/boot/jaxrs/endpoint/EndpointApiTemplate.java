@@ -15,20 +15,22 @@
  */
 package org.apache.cxf.spring.boot.jaxrs.endpoint;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.metrics.MetricsFeature;
+import org.apache.cxf.jaxrs.provider.ProviderFactory;
 import org.apache.cxf.spring.boot.CxfJaxrsServerProperties;
 import org.apache.cxf.spring.boot.jaxrs.callback.DefaultEndpointCallback;
 import org.apache.cxf.validation.BeanValidationFeature;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 /**
  * TODO
@@ -48,7 +50,7 @@ public class EndpointApiTemplate {
 	public EndpointApiTemplate(Bus bus, CxfJaxrsServerProperties serverProperties) {
 		this.bus = bus;
 		this.serverProperties = serverProperties;
-		this.callback = new DefaultEndpointCallback( loggingFeature, metricsFeature, validationFeature);
+		refreshDefaultCallback();
 	}
 
 	/**
@@ -78,14 +80,14 @@ public class EndpointApiTemplate {
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
-		factoryBean.setBus(bus);
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
+		configureBus(factoryBean);
 		factoryBean.setServiceBeanObjects(implementors);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());;
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		
 		// 3). 调用回调函数，个性化设置拦截器、Provider、Feature
@@ -115,13 +117,13 @@ public class EndpointApiTemplate {
 		// 2). 设置属性
 		factoryBean.setAddress(addr);
 		//factoryBean.setApplication(app);
-		factoryBean.setBindingId(DigestUtils.md5Hex(addr));
-		factoryBean.setBus(bus);
+		factoryBean.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
+		configureBus(factoryBean);
 		factoryBean.setExtensionMappings(serverProperties.getExtensionMappings());
 		factoryBean.setLanguageMappings(serverProperties.getLanguageMappings());
 		factoryBean.setProperties(serverProperties.getProperties());
 		// 添加 Provider
-		factoryBean.setProvider(new JacksonJaxbJsonProvider());
+		factoryBean.setProvider(new JacksonXmlBindJsonProvider());
 		factoryBean.setPublishedEndpointUrl(serverProperties.getPublishedEndpointUrl());
 		factoryBean.setResourceClasses(classes);
 		
@@ -135,6 +137,15 @@ public class EndpointApiTemplate {
 
 		return server;
 	}
+
+    private void configureBus(JAXRSServerFactoryBean factoryBean) {
+        String property = ProviderFactory.SKIP_JAKARTA_JSON_PROVIDERS_REGISTRATION;
+        if (Objects.isNull(bus.getProperty(property))) {
+            // The starter explicitly supplies Jackson for JSON endpoints.
+            bus.setProperty(property, Boolean.TRUE);
+        }
+        factoryBean.setBus(bus);
+    }
 
 	/**
 	 * 销毁指定路径匹配的Endpoint
@@ -162,6 +173,7 @@ public class EndpointApiTemplate {
 
 	public void setLoggingFeature(LoggingFeature loggingFeature) {
 		this.loggingFeature = loggingFeature;
+		refreshDefaultCallback();
 	}
 
 	public MetricsFeature getMetricsFeature() {
@@ -170,6 +182,7 @@ public class EndpointApiTemplate {
 
 	public void setMetricsFeature(MetricsFeature metricsFeature) {
 		this.metricsFeature = metricsFeature;
+		refreshDefaultCallback();
 	}
 
 	public BeanValidationFeature getValidationFeature() {
@@ -178,6 +191,11 @@ public class EndpointApiTemplate {
 
 	public void setValidationFeature(BeanValidationFeature validationFeature) {
 		this.validationFeature = validationFeature;
+		refreshDefaultCallback();
+	}
+
+	private void refreshDefaultCallback() {
+		this.callback = new DefaultEndpointCallback(loggingFeature, metricsFeature, validationFeature);
 	}
 	
 }

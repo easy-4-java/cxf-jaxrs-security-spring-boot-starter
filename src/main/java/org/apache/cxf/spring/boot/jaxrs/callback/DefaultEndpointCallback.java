@@ -15,6 +15,8 @@
  */
 package org.apache.cxf.spring.boot.jaxrs.callback;
 
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,12 +25,10 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.apache.cxf.metrics.MetricsFeature;
 import org.apache.cxf.spring.boot.jaxrs.endpoint.EndpointCallback;
 import org.apache.cxf.validation.BeanValidationFeature;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 /**
  * TODO
@@ -52,7 +52,7 @@ public class DefaultEndpointCallback implements EndpointCallback {
 
 		// 3). 添加 Provider，用于支持自动解析各种数据格式、如Json
 		List<Object> providerList = new ArrayList<Object>();
-		providerList.add(new JacksonJsonProvider());
+		providerList.add(new JacksonXmlBindJsonProvider());
 		factoryBean.setProviders(providerList); 
 		
 		//new Swagger2Feature()
@@ -78,7 +78,7 @@ public class DefaultEndpointCallback implements EndpointCallback {
 
 		// 3). 添加 Provider，用于支持自动解析各种数据格式、如Json
 		List<Object> providerList = new ArrayList<Object>();
-		providerList.add(new JacksonJsonProvider());
+		providerList.add(new JacksonXmlBindJsonProvider());
 		factoryBean.setProviders(providerList); 
 
 		// 添加输入& 输出日志（可选）
